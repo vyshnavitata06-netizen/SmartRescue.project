@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Emergency Response & Rescue Management System</title>
+<style>
+:root{
+  --primary:#1565c0;--primary2:#0d47a1;--header:#102a43;
+  --bg:#f3f6fa;--panel:#ffffff;--text:#1f2937;--muted:#64748b;
+  --border:#e2e8f0;--danger:#dc2626;--success:#16a34a;--warning:#d97706;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);transition:.25s}
+button,input,select,textarea{font:inherit}
+button{border:0;border-radius:7px;padding:9px 13px;background:var(--primary);color:#fff;cursor:pointer;font-weight:700}
+button:hover{background:var(--primary2)}
+button.secondary{background:#64748b}.danger{background:var(--danger)}.success{background:var(--success)}.warning{background:var(--warning)}
+header{height:68px;background:var(--header);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;position:sticky;top:0;z-index:20}
+header h1{font-size:20px;margin:0}.top{display:flex;align-items:center;gap:9px}.bell{background:#ef4444;padding:7px 11px;border-radius:18px;font-size:12px}
+.app{display:flex;min-height:calc(100vh - 68px)}
+.sidebar{width:235px;background:var(--panel);border-right:1px solid var(--border);padding:18px 13px;position:fixed;top:68px;bottom:0;overflow:auto}
+.sidebar h3{font-size:13px;color:var(--muted);padding:0 12px}.nav{padding:11px 12px;border-radius:8px;margin:4px 0;cursor:pointer}.nav:hover,.nav.active{background:#e8f1fb;color:var(--primary);font-weight:700}
+main{margin-left:235px;width:calc(100% - 235px);padding:24px}.page{display:none}.page.active{display:block}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card,.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:0 2px 8px #0000000d}
+.card h2{margin:8px 0;font-size:28px}.muted{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-top:18px}.panel h2{font-size:18px;margin-top:0}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:15px}.toolbar input{width:250px}
+input,select,textarea{padding:10px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#111827;width:100%}
+.toolbar select,.toolbar input{width:auto}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:13px}.form .full{grid-column:1/-1}.form label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}
+.table-wrap{overflow:auto}.panel table{width:100%;border-collapse:collapse}.panel th,.panel td{padding:11px;border-bottom:1px solid var(--border);text-align:left;font-size:13px;white-space:nowrap}.panel th{color:var(--muted);background:#f8fafc}
+.badge{display:inline-block;padding:5px 8px;border-radius:14px;font-size:11px;font-weight:700}.high{background:#fee2e2;color:#b91c1c}.medium{background:#fef3c7;color:#92400e}.low{background:#dcfce7;color:#166534}.assigned{background:#dbeafe;color:#1d4ed8}.progress-b{background:#e0e7ff;color:#4338ca}.resolved{background:#dcfce7;color:#166534}.disabled{background:#e5e7eb;color:#475569}
+.map{height:320px;border-radius:10px;background:#dcebd8;position:relative;overflow:hidden;background-image:linear-gradient(35deg,#c7daba 12%,transparent 12%,transparent 50%,#c7daba 50%,#c7daba 62%,transparent 62%);background-size:55px 55px}
+.road{position:absolute;width:120%;height:34px;background:#b7bdc5;top:120px;left:-30px;transform:rotate(-15deg)}.road2{position:absolute;width:120%;height:27px;background:#b7bdc5;top:235px;left:-20px;transform:rotate(24deg)}
+.marker{position:absolute;font-size:27px;z-index:2}.m1{left:30%;top:55px}.m2{left:68%;top:170px}.m3{left:20%;top:240px}
+.progress{height:10px;background:#e5e7eb;border-radius:10px;overflow:hidden}.progress div{height:100%;background:var(--primary)}
+.bar{height:13px;background:#e5e7eb;border-radius:8px;overflow:hidden}.bar div{height:100%;background:var(--primary)}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.ai-preview{height:220px;border:2px dashed #cbd5e1;border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--muted);overflow:hidden;background:#f8fafc;margin:10px 0}.ai-preview img{max-width:100%;max-height:100%}
+.ai-result{margin-top:14px;padding:13px;border-radius:9px;background:#eef6ff;line-height:1.65}
+.chat-box{height:260px;overflow:auto;background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px}.bot,.user-msg{padding:10px;border-radius:10px;margin:7px 0;max-width:90%;line-height:1.45}.bot{background:#e8f1fb}.user-msg{background:var(--primary);color:#fff;margin-left:auto}.chat-input{display:flex;gap:8px;margin-top:9px}.chat-input input{flex:1}
+.timeline{border-left:3px solid #93c5fd;padding-left:24px;margin:15px 0}.timeline-item{position:relative;padding-bottom:22px}.timeline-item:before{content:"";position:absolute;left:-33px;top:0;width:13px;height:13px;border-radius:50%;background:var(--primary);border:3px solid var(--panel)}
+.route-box{height:230px;border-radius:10px;background:#e4f0df;position:relative;overflow:hidden;margin:12px 0}.route-line{position:absolute;width:80%;height:7px;background:var(--primary);left:10%;top:52%;transform:rotate(-12deg);border-radius:8px}.route-point{position:absolute;font-size:28px}.rp1{left:8%;top:55%}.rp2{right:8%;top:30%}
+.contact-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.contact{border:1px solid var(--border);border-radius:9px;padding:14px}
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modalbox{width:min(650px,100%);max-height:90vh;overflow:auto;background:var(--panel);border-radius:13px;padding:22px;position:relative}.close{position:absolute;right:15px;top:15px;background:var(--danger)}
+.toast{position:fixed;right:20px;bottom:20px;background:#102a43;color:#fff;padding:13px 17px;border-radius:8px;display:none;z-index:100}.toast.show{display:block}
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#102a43,#1565c0);z-index:1000;display:flex;align-items:center;justify-content:center}.login-screen.hidden{display:none}.login-card{width:min(400px,92%);background:#fff;color:#1f2937;border-radius:18px;padding:32px;box-shadow:0 20px 60px #0006;text-align:center}.login-card .logo{font-size:42px}.login-card label{display:block;text-align:left;font-size:13px;font-weight:700;margin:12px 0 5px}.login-card input{width:100%}.login-card button{width:100%;margin-top:18px}.login-card small{color:#64748b}.login-error{color:#dc2626;margin-top:10px;font-size:13px}
+.theme-box{display:flex;gap:9px;flex-wrap:wrap}.theme-btn{border:1px solid #cbd5e1;background:#fff;color:#111827}.theme-dark{background:#111827;color:#fff}.theme-blue{background:#dbeafe;color:#1e3a8a}.theme-green{background:#dcfce7;color:#166534}
+body.dark{--header:#080d16;--bg:#111827;--panel:#1f2937;--text:#f3f4f6;--muted:#cbd5e1;--border:#374151}
+body.dark input,body.dark select,body.dark textarea{background:#111827;color:#f3f4f6;border-color:#4b5563}body.dark .panel th{background:#111827}
+body.blue{--header:#063970;--bg:#eaf4ff;--panel:#fff;--text:#12324a;--muted:#557086}
+body.green{--header:#14532d;--bg:#effaf2;--panel:#fff;--text:#17351f;--muted:#58705f}
+body.green button{background:#15803d}body.green .nav.active{background:#dcfce7;color:#166534}
+@media(max-width:950px){.cards{grid-template-columns:1fr 1fr}.feature-grid,.grid{grid-template-columns:1fr}}
+@media(max-width:700px){header h1{font-size:15px}.sidebar{position:static;width:100%;height:auto}.app{display:block}.sidebar{display:block}main{margin-left:0;width:100%}.cards{grid-template-columns:1fr}.form{grid-template-columns:1fr}.form .full{grid-column:auto}.contact-list{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="logo">🚨</div>
+    <h1>Rescue Response</h1>
+    <p>AI Emergency Management System</p>
+    <label>Username</label><input id="loginUser" value="admin">
+    <label>Password</label><input id="loginPass" type="password" value="admin123">
+    <button onclick="login()">🔐 Login</button>
+    <small>Demo: admin / admin123</small>
+    <div id="loginError" class="login-error"></div>
+  </div>
+</div>
+
+<header>
+  <h1>🚨 AI Emergency Response & Rescue System</h1>
+  <div class="top">
+    <span class="bell">🔔 <span id="alertCount">3</span> Alerts</span>
+    <button class="secondary" onclick="cycleTheme()">🎨 Theme</button>
+    <b id="headerUser">Admin</b>
+    <button class="secondary" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="app">
+<aside class="sidebar">
+<h3>CONTROL CENTER</h3>
+<div class="nav active" onclick="showPage('dashboard',this)">📊 Dashboard</div>
+<div class="nav" onclick="showPage('emergencies',this)">🚨 Emergencies</div>
+<div class="nav" onclick="showPage('drones',this)">🚁 Virtual Drones</div>
+<div class="nav" onclick="showPage('teams',this)">👨‍🚒 Rescue Teams</div>
+<div class="nav" onclick="showPage('ai',this)">🤖 AI Center</div>
+<div class="nav" onclick="showPage('analytics',this)">📈 Analytics</div>
+<div class="nav" onclick="showPage('timeline',this)">📝 Incident Timeline</div>
+<div class="nav" onclick="showPage('citizen',this)">📱 Citizen Portal</div>
+<div class="nav" onclick="showPage('users',this)">👤 Users</div>
+<div class="nav" onclick="showPage('settings',this)">⚙️ Settings</div>
+</aside>
+
+<main>
+
+<section id="dashboard" class="page active">
+<h2>📊 Dashboard</h2>
+<div class="cards">
+<div class="card">🚨<h2 id="dashActive">0</h2><span class="muted">Active Emergencies</span></div>
+<div class="card">🔴<h2 id="dashHigh">0</h2><span class="muted">High Priority</span></div>
+<div class="card">🚁<h2 id="dashDrone">0</h2><span class="muted">Available Drones</span></div>
+<div class="card">👨‍🚒<h2 id="dashTeam">0</h2><span class="muted">Available Teams</span></div>
+</div>
+<div class="grid">
+<div class="panel"><h2>🗺️ Live Emergency Map</h2><div class="map"><div class="road"></div><div class="road2"></div><div class="marker m1">📍</div><div class="marker m2">📍</div><div class="marker m3">📍</div></div><p class="muted">🔴 High &nbsp; 🟠 Medium &nbsp; 🟢 Resolved</p></div>
+<div class="panel"><h2>🚁 Current Mission</h2><div id="missionBox"></div></div>
+</div>
+<div class="panel" style="margin-top:18px"><h2>Recent Emergencies</h2><div class="table-wrap"><table><thead><tr><th>ID</th><th>Type</th><th>Location</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead><tbody id="recentBody"></tbody></table></div></div>
+</section>
+
+<section id="emergencies" class="page">
+<h2>🚨 Emergency Management</h2>
+<div class="toolbar">
+<input id="searchEmergency" placeholder="🔍 Search..." oninput="renderEmergencies()">
+<select id="filterType" onchange="renderEmergencies()"><option value="">All Types</option><option>Flood</option><option>Fire</option><option>Accident</option><option>Missing Person</option><option>Landslide</option></select>
+<select id="filterPriority" onchange="renderEmergencies()"><option value="">All Priorities</option><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select>
+<select id="filterStatus" onchange="renderEmergencies()"><option value="">All Status</option><option>Pending</option><option>Assigned</option><option>In Progress</option><option>Resolved</option></select>
+<button onclick="openEmergencyModal()">➕ Add Emergency</button>
+</div>
+<div class="panel table-wrap"><table><thead><tr><th>ID</th><th>Type</th><th>Location</th><th>Priority</th><th>Status</th><th>Drone</th><th>Team</th><th>Actions</th></tr></thead><tbody id="emergencyBody"></tbody></table></div>
+</section>
+
+<section id="drones" class="page">
+<h2>🚁 Virtual Drone Management</h2>
+<div class="toolbar"><button onclick="openDroneModal()">➕ Add Drone</button></div>
+<div class="panel table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Location</th><th>Status</th><th>Battery</th><th>Actions</th></tr></thead><tbody id="droneBody"></tbody></table></div>
+</section>
+
+<section id="teams" class="page">
+<h2>👨‍🚒 Rescue Team Management</h2>
+<div class="toolbar"><button onclick="openTeamModal()">➕ Add Team</button></div>
+<div class="panel table-wrap"><table><thead><tr><th>ID</th><th>Team</th><th>Members</th><th>Location</th><th>Status</th><th>Actions</th></tr></thead><tbody id="teamBody"></tbody></table></div>
+</section>
+
+<section id="ai" class="page">
+<h2>🤖 AI Emergency Intelligence Center</h2>
+<div class="cards">
+<div class="card">🧠<h2 id="aiRisk">HIGH</h2><span class="muted">Current AI Risk</span></div>
+<div class="card">👤<h2 id="aiPeople">2</h2><span class="muted">People Detected</span></div>
+<div class="card">🎯<h2 id="aiConfidence">94%</h2><span class="muted">AI Confidence</span></div>
+<div class="card">⏱️<h2 id="aiETA">12 min</h2><span class="muted">Estimated Response</span></div>
+</div>
+<div class="feature-grid">
+<div class="panel"><h2>📷 AI Image Analysis</h2><p class="muted">Frontend demo. Replace with YOLO/OpenCV backend for real detection.</p><input type="file" id="aiImage" accept="image/*" onchange="previewImage(event)"><div id="imagePreview" class="ai-preview">📷 Image preview</div><button onclick="analyzeImage()">🤖 Analyze Image</button><div id="imageResult" class="ai-result"></div></div>
+<div class="panel"><h2>🧠 AI Priority Prediction</h2><div class="form">
+<div><label>Emergency Type</label><select id="aiType"><option>Flood</option><option>Fire</option><option>Accident</option><option>Missing Person</option><option>Landslide</option></select></div>
+<div><label>People Affected</label><input id="aiAffected" type="number" value="10" min="0"></div>
+<div><label>Severity</label><select id="aiSeverity"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
+<div><label>Road Access</label><select id="aiRoad"><option>Open</option><option>Blocked</option></select></div>
+</div><button onclick="predictPriority()">🎯 Predict Priority</button><div id="priorityResult" class="ai-result"></div></div>
+<div class="panel"><h2>🎯 AI Resource Optimization</h2><p class="muted">Considers drone availability, battery and rescue-team availability.</p><button onclick="recommendResources()">✨ Recommend Resources</button><div id="recommendResult" class="ai-result"></div></div>
+<div class="panel"><h2>💬 AI Emergency Assistant</h2><div id="chatBox" class="chat-box"><div class="bot">🤖 <b>Rescue AI:</b> Ask about priorities, drones, teams or emergencies.</div></div><div class="chat-input"><input id="chatInput" placeholder="Ask a question..."><button onclick="askAI()">Send</button></div></div>
+</div>
+</section>
+
+<section id="analytics" class="page">
+<h2>📈 Analytics & Reports <button style="float:right" onclick="renderAnalytics();toast('Analytics refreshed')">🔄 Refresh</button></h2>
+<div class="cards">
+<div class="card">📋<h2 id="aTotal">0</h2><span class="muted">Total Emergencies</span></div>
+<div class="card">🚨<h2 id="aActive">0</h2><span class="muted">Active</span></div>
+<div class="card">✅<h2 id="aResolved">0</h2><span class="muted">Resolved</span></div>
+<div class="card">⏱️<h2>12 min</h2><span class="muted">Avg Response Time</span></div>
+</div>
+<div class="feature-grid">
+<div class="panel"><h2>Emergency Types</h2><div id="typeAnalytics"></div></div>
+<div class="panel"><h2>Priority Distribution</h2><div id="priorityAnalytics"></div></div>
+<div class="panel"><h2>Response Performance</h2><p>Within target response time</p><div class="bar"><div style="width:82%"></div></div><p class="muted">82% of simulated cases</p></div>
+<div class="panel"><h2>Export</h2><p class="muted">Download emergency records as CSV.</p><button onclick="downloadCSV()">📥 Download CSV</button></div>
+</div>
+</section>
+
+<section id="timeline" class="page">
+<h2>📝 Incident Timeline & Escalation</h2>
+<div class="feature-grid">
+<div class="panel"><h2>ER-0081 — Flood</h2><p><b>Location:</b> Mangalagiri</p><p><b>Priority:</b> 🔴 HIGH</p><div class="timeline">
+<div class="timeline-item"><b>10:05 AM — Emergency reported</b><small>Emergency request received.</small></div>
+<div class="timeline-item"><b>10:06 AM — AI priority checked</b><small>Risk assessed as HIGH.</small></div>
+<div class="timeline-item"><b>10:07 AM — Drone assigned</b><small>Virtual drone dispatched.</small></div>
+<div class="timeline-item"><b>10:09 AM — Rescue team assigned</b><small>Team notified.</small></div>
+<div class="timeline-item"><b>10:15 AM — Rescue operation started</b><small>Mission in progress.</small></div>
+</div></div>
+<div class="panel"><h2>⚠️ Emergency Escalation</h2><p class="muted">If a high-priority incident remains unresolved, the system can request additional support.</p><button onclick="escalateIncident()">🔴 Simulate Escalation</button><div id="escalationResult" class="ai-result"></div><hr><h3>⏱️ Response Time</h3><h2>12 min</h2><div class="bar"><div style="width:80%"></div></div><p class="muted">Target: 15 minutes</p></div>
+</div>
+</section>
+
+<section id="citizen" class="page">
+<h2>📱 Citizen Emergency Portal</h2>
+<div class="feature-grid">
+<div class="panel"><h2>🚨 Report Emergency</h2><div class="form">
+<div><label>Emergency Type</label><select id="cType"><option>Flood</option><option>Fire</option><option>Accident</option><option>Missing Person</option><option>Landslide</option></select></div>
+<div><label>Location</label><input id="cLocation" placeholder="Enter location"></div>
+<div><label>People Affected</label><input id="cPeople" type="number" value="1" min="1"></div>
+<div><label>Contact Number</label><input id="cContact" placeholder="Optional"></div>
+<div class="full"><label>Description</label><textarea id="cDesc" rows="4" placeholder="Describe what happened..."></textarea></div>
+</div><button onclick="submitCitizenEmergency()">🚨 Submit Emergency</button><div id="citizenResult" class="ai-result"></div></div>
+<div class="panel"><h2>🗺️ Track Emergency</h2><div class="route-box"><div class="route-line"></div><div class="route-point rp1">📍</div><div class="route-point rp2">🚑</div></div><p><b>ER-0081:</b> Rescue team is <b>In Progress</b>.</p><button onclick="toast('Tracking refreshed')">🔄 Refresh</button></div>
+</div>
+<div class="panel" style="margin-top:18px"><h2>📞 Emergency Contacts</h2><div class="contact-list"><div class="contact">🚓 <b>Police</b><br><span class="muted">Emergency support</span></div><div class="contact">🚑 <b>Medical</b><br><span class="muted">Ambulance support</span></div><div class="contact">🚒 <b>Fire & Rescue</b><br><span class="muted">Fire/rescue support</span></div></div></div>
+</section>
+
+<section id="users" class="page">
+<h2>👤 User Management</h2><div class="toolbar"><button onclick="openUserModal()">➕ Add User</button></div>
+<div class="panel table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Email</th><th>Status</th><th>Actions</th></tr></thead><tbody id="userBody"></tbody></table></div>
+</section>
+
+<section id="settings" class="page">
+<h2>⚙️ Settings</h2>
+<div class="panel">
+<h3>🎨 Theme Customization</h3><div class="theme-box"><button class="theme-btn" onclick="setTheme('')">☀️ Light</button><button class="theme-btn theme-dark" onclick="setTheme('dark')">🌙 Dark</button><button class="theme-btn theme-blue" onclick="setTheme('blue')">💙 Ocean Blue</button><button class="theme-btn theme-green" onclick="setTheme('green')">🌿 Rescue Green</button></div>
+<hr><h3>👤 Profile</h3><div class="form"><div><label>Username</label><input id="settingsUser" value="Admin"></div><div><label>Email</label><input id="settingsEmail" value="admin@rescue.local"></div><div><label>New Password</label><input id="settingsPass" type="password"></div><div><label>Confirm Password</label><input id="settingsConfirm" type="password"></div></div>
+<div class="actions"><button onclick="saveSettings()">💾 Save Settings</button></div>
+<hr><h3>🔔 Notifications</h3><label><input type="checkbox" checked> Emergency notifications</label><br><label><input type="checkbox" checked> Drone alerts</label><br><label><input type="checkbox" checked> Rescue-team alerts</label><hr><button class="danger" onclick="logout()">🚪 Logout</button>
+</div>
+</section>
+
+</main>
+</div>
+
+<!-- Emergency Modal -->
+<div id="emergencyModal" class="modal"><div class="modalbox"><button class="close" onclick="closeModal('emergencyModal')">X</button><h2 id="emTitle">➕ Add Emergency</h2>
+<div class="form"><div><label>Emergency ID</label><input id="eId"></div><div><label>Type</label><select id="eType"><option>Flood</option><option>Fire</option><option>Accident</option><option>Missing Person</option><option>Landslide</option></select></div>
+<div><label>Location</label><input id="eLocation"></div><div><label>Priority</label><select id="ePriority"><option>HIGH</option><option>MEDIUM</option><option>LOW</option></select></div>
+<div><label>Status</label><select id="eStatus"><option>Pending</option><option>Assigned</option><option>In Progress</option><option>Resolved</option></select></div><div><label>Drone</label><select id="eDrone"></select></div>
+<div><label>Rescue Team</label><select id="eTeam"></select></div><div class="full"><label>Description</label><textarea id="eDesc" rows="3"></textarea></div></div>
+<div class="actions"><button class="secondary" onclick="closeModal('emergencyModal')">Cancel</button><button onclick="saveEmergency()">💾 Save</button></div></div></div>
+
+<!-- Drone Modal -->
+<div id="droneModal" class="modal"><div class="modalbox"><button class="close" onclick="closeModal('droneModal')">X</button><h2 id="dTitle">➕ Add Drone</h2>
+<div class="form"><div><label>ID</label><input id="dId"></div><div><label>Name</label><input id="dName"></div><div><label>Location</label><input id="dLocation"></div><div><label>Status</label><select id="dStatus"><option>Available</option><option>On Mission</option><option>Charging</option><option>Offline</option></select></div><div><label>Battery %</label><input id="dBattery" type="number" min="0" max="100"></div></div>
+<div class="actions"><button class="secondary" onclick="closeModal('droneModal')">Cancel</button><button onclick="saveDrone()">💾 Save</button></div></div></div>
+
+<!-- Team Modal -->
+<div id="teamModal" class="modal"><div class="modalbox"><button class="close" onclick="closeModal('teamModal')">X</button><h2 id="tTitle">➕ Add Team</h2>
+<div class="form"><div><label>ID</label><input id="tId"></div><div><label>Team Name</label><input id="tName"></div><div><label>Members</label><input id="tMembers" type="number" min="1"></div><div><label>Location</label><input id="tLocation"></div><div><label>Status</label><select id="tStatus"><option>Available</option><option>On Mission</option><option>Offline</option></select></div></div>
+<div class="actions"><button class="secondary" onclick="closeModal('teamModal')">Cancel</button><button onclick="saveTeam()">💾 Save</button></div></div></div>
+
+<!-- User Modal -->
+<div id="userModal" class="modal"><div class="modalbox"><button class="close" onclick="closeModal('userModal')">X</button><h2 id="uTitle">➕ Add User</h2>
+<div class="form"><div><label>Name</label><input id="uName"></div><div><label>Role</label><select id="uRole"><option>Administrator</option><option>Emergency Operator</option><option>Rescue Team</option><option>Citizen</option></select></div><div><label>Email</label><input id="uEmail" type="email"></div><div><label>Status</label><select id="uStatus"><option>Active</option><option>Disabled</option></select></div></div>
+<div class="actions"><button class="secondary" onclick="closeModal('userModal')">Cancel</button><button onclick="saveUser()">💾 Save</button></div></div></div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+"use strict";
+
+let emergencies=[
+{id:"ER-0081",type:"Flood",location:"Mangalagiri",priority:"HIGH",status:"Assigned",drone:"DRONE-02",team:"TEAM-01",desc:"Water level increasing"},
+{id:"ER-0082",type:"Accident",location:"Vijayawada",priority:"MEDIUM",status:"In Progress",drone:"DRONE-03",team:"TEAM-02",desc:"Road accident reported"},
+{id:"ER-0079",type:"Missing Person",location:"Guntur",priority:"HIGH",status:"Resolved",drone:"DRONE-01",team:"TEAM-03",desc:"Search completed"}
+];
+
+let drones=[
+{id:"DRONE-01",name:"Scout Alpha",location:"Guntur",status:"Available",battery:92},
+{id:"DRONE-02",name:"Rescue Hawk",location:"Mangalagiri",status:"On Mission",battery:68},
+{id:"DRONE-03",name:"Eye Sky",location:"Vijayawada",status:"Available",battery:81},
+{id:"DRONE-04",name:"Rapid Eye",location:"Guntur",status:"Charging",battery:45}
+];
+
+let teams=[
+{id:"TEAM-01",name:"Alpha Rescue",members:6,location:"Mangalagiri",status:"Available"},
+{id:"TEAM-02",name:"Rapid Response",members:8,location:"Vijayawada",status:"On Mission"},
+{id:"TEAM-03",name:"Search Squad",members:5,location:"Guntur",status:"Available"}
+];
+
+let users=[
+{name:"Admin User",role:"Administrator",email:"admin@rescue.local",status:"Active"},
+{name:"Ravi Kumar",role:"Emergency Operator",email:"ravi@rescue.local",status:"Active"},
+{name:"Anitha",role:"Rescue Team",email:"anitha@rescue.local",status:"Active"},
+{name:"Priya",role:"Citizen",email:"priya@rescue.local",status:"Active"}
+];
+
+let editEmergencyIndex=-1,editDroneIndex=-1,editTeamIndex=-1,editUserIndex=-1;
+let themes=["","dark","blue","green"];
+
+function byId(id){return document.getElementById(id)}
+function toast(message){const t=byId("toast");t.textContent=message;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function openModal(id){byId(id).classList.add("show")}
+function closeModal(id){byId(id).classList.remove("show")}
+
+function login(){
+ const user=byId("loginUser").value.trim(),pass=byId("loginPass").value;
+ if(user==="admin" && pass==="admin123"){
+   byId("loginScreen").classList.add("hidden");
+   byId("headerUser").textContent=user;
+   byId("loginError").textContent="";
+   toast("Login successful");
+ }else byId("loginError").textContent="Invalid username or password.";
+}
+function logout(){byId("loginScreen").classList.remove("hidden");byId("loginPass").value="";}
+
+function showPage(id,element){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ const page=byId(id);if(page)page.classList.add("active");
+ document.querySelectorAll(".nav").forEach(n=>n.classList.remove("active"));
+ if(element)element.classList.add("active");
+ renderAll();
+}
+
+function badge(value){
+ let cls="";
+ if(value==="HIGH")cls="high";
+ else if(value==="MEDIUM")cls="medium";
+ else if(value==="LOW")cls="low";
+ else if(value==="Assigned")cls="assigned";
+ else if(value==="In Progress")cls="progress-b";
+ else if(value==="Resolved"||value==="Available"||value==="Active")cls="resolved";
+ else if(value==="Disabled"||value==="Offline")cls="disabled";
+ return '<span class="badge '+cls+'">'+value+'</span>';
+}
+
+/* Emergency */
+function fillAssignments(){
+ const drone=byId("eDrone"),team=byId("eTeam");
+ drone.innerHTML='<option value="">Not Assigned</option>'+drones.map(d=>'<option value="'+d.id+'">'+d.id+' - '+d.name+'</option>').join("");
+ team.innerHTML='<option value="">Not Assigned</option>'+teams.map(t=>'<option value="'+t.id+'">'+t.id+' - '+t.name+'</option>').join("");
+}
+function openEmergencyModal(){
+ editEmergencyIndex=-1;
+ byId("emTitle").textContent="➕ Add Emergency";
+ byId("eId").value="ER-"+(Math.floor(1000+Math.random()*8999));
+ byId("eType").value="Flood";byId("eLocation").value="";byId("ePriority").value="HIGH";byId("eStatus").value="Pending";byId("eDesc").value="";
+ fillAssignments();byId("eDrone").value="";byId("eTeam").value="";openModal("emergencyModal");
+}
+function editEmergency(id){
+ const i=emergencies.findIndex(e=>e.id===id);if(i<0)return;
+ const e=emergencies[i];editEmergencyIndex=i;byId("emTitle").textContent="✏️ Edit Emergency";
+ byId("eId").value=e.id;byId("eType").value=e.type;byId("eLocation").value=e.location;byId("ePriority").value=e.priority;byId("eStatus").value=e.status;byId("eDesc").value=e.desc||"";
+ fillAssignments();byId("eDrone").value=e.drone||"";byId("eTeam").value=e.team||"";openModal("emergencyModal");
+}
+function saveEmergency(){
+ const e={id:byId("eId").value.trim(),type:byId("eType").value,location:byId("eLocation").value.trim(),priority:byId("ePriority").value,status:byId("eStatus").value,drone:byId("eDrone").value,team:byId("eTeam").value,desc:byId("eDesc").value.trim()};
+ if(!e.id||!e.location){toast("ID and location are required");return}
+ if(editEmergencyIndex<0)emergencies.unshift(e);else emergencies[editEmergencyIndex]=e;
+ closeModal("emergencyModal");renderAll();toast("Emergency saved");
+}
+function deleteEmergency(id){if(confirm("Delete this emergency?")){emergencies=emergencies.filter(e=>e.id!==id);renderAll();toast("Emergency deleted")}}
+function renderEmergencies(){
+ const q=byId("searchEmergency").value.toLowerCase(),type=byId("filterType").value,p=byId("filterPriority").value,s=byId("filterStatus").value;
+ const rows=emergencies.filter(e=>(!q||(e.id+" "+e.type+" "+e.location).toLowerCase().includes(q))&&(!type||e.type===type)&&(!p||e.priority===p)&&(!s||e.status===s));
+ byId("emergencyBody").innerHTML=rows.length?rows.map(e=>'<tr><td>'+e.id+'</td><td>'+e.type+'</td><td>📍 '+e.location+'</td><td>'+badge(e.priority)+'</td><td>'+badge(e.status)+'</td><td>'+(e.drone||"-")+'</td><td>'+(e.team||"-")+'</td><td><button onclick="editEmergency(\''+e.id+'\')">✏️ Edit</button> <button class="danger" onclick="deleteEmergency(\''+e.id+'\')">🗑️</button></td></tr>').join(""):'<tr><td colspan="8">No emergencies found.</td></tr>';
+}
+
+/* Drones */
+function openDroneModal(){editDroneIndex=-1;byId("dTitle").textContent="➕ Add Drone";byId("dId").value="DRONE-"+String(drones.length+1).padStart(2,"0");byId("dName").value="";byId("dLocation").value="";byId("dStatus").value="Available";byId("dBattery").value=100;openModal("droneModal")}
+function editDrone(i){const d=drones[i];editDroneIndex=i;byId("dTitle").textContent="✏️ Edit Drone";byId("dId").value=d.id;byId("dName").value=d.name;byId("dLocation").value=d.location;byId("dStatus").value=d.status;byId("dBattery").value=d.battery;openModal("droneModal")}
+function saveDrone(){const d={id:byId("dId").value.trim(),name:byId("dName").value.trim(),location:byId("dLocation").value.trim(),status:byId("dStatus").value,battery:Math.max(0,Math.min(100,Number(byId("dBattery").value)||0))};if(!d.id||!d.name){toast("Drone ID and name are required");return}if(editDroneIndex<0)drones.push(d);else drones[editDroneIndex]=d;closeModal("droneModal");renderAll();toast("Drone saved")}
+function deleteDrone(i){if(confirm("Delete this drone?")){drones.splice(i,1);renderAll();toast("Drone deleted")}}
+function renderDrones(){byId("droneBody").innerHTML=drones.map((d,i)=>'<tr><td>'+d.id+'</td><td>🚁 '+d.name+'</td><td>'+d.location+'</td><td>'+badge(d.status)+'</td><td>'+d.battery+'%<div class="bar"><div style="width:'+d.battery+'%"></div></div></td><td><button onclick="editDrone('+i+')">✏️ Edit</button> <button class="danger" onclick="deleteDrone('+i+')">🗑️</button></td></tr>').join("")}
+
+/* Teams */
+function openTeamModal(){editTeamIndex=-1;byId("tTitle").textContent="➕ Add Team";byId("tId").value="TEAM-"+String(teams.length+1).padStart(2,"0");byId("tName").value="";byId("tMembers").value=5;byId("tLocation").value="";byId("tStatus").value="Available";openModal("teamModal")}
+function editTeam(i){const t=teams[i];editTeamIndex=i;byId("tTitle").textContent="✏️ Edit Team";byId("tId").value=t.id;byId("tName").value=t.name;byId("tMembers").value=t.members;byId("tLocation").value=t.location;byId("tStatus").value=t.status;openModal("teamModal")}
+function saveTeam(){const t={id:byId("tId").value.trim(),name:byId("tName").value.trim(),members:Number(byId("tMembers").value)||1,location:byId("tLocation").value.trim(),status:byId("tStatus").value};if(!t.id||!t.name){toast("Team ID and name are required");return}if(editTeamIndex<0)teams.push(t);else teams[editTeamIndex]=t;closeModal("teamModal");renderAll();toast("Rescue team saved")}
+function deleteTeam(i){if(confirm("Delete this team?")){teams.splice(i,1);renderAll();toast("Team deleted")}}
+function renderTeams(){byId("teamBody").innerHTML=teams.map((t,i)=>'<tr><td>'+t.id+'</td><td>👨‍🚒 '+t.name+'</td><td>'+t.members+'</td><td>'+t.location+'</td><td>'+badge(t.status)+'</td><td><button onclick="editTeam('+i+')">✏️ Edit</button> <button class="danger" onclick="deleteTeam('+i+')">🗑️</button></td></tr>').join("")}
+
+/* Users */
+function openUserModal(){editUserIndex=-1;byId("uTitle").textContent="➕ Add User";byId("uName").value="";byId("uRole").value="Citizen";byId("uEmail").value="";byId("uStatus").value="Active";openModal("userModal")}
+function editUser(i){const u=users[i];editUserIndex=i;byId("uTitle").textContent="✏️ Edit User";byId("uName").value=u.name;byId("uRole").value=u.role;byId("uEmail").value=u.email;byId("uStatus").value=u.status;openModal("userModal")}
+function saveUser(){const u={name:byId("uName").value.trim(),role:byId("uRole").value,email:byId("uEmail").value.trim(),status:byId("uStatus").value};if(!u.name||!u.email){toast("Name and email are required");return}if(editUserIndex<0)users.push(u);else users[editUserIndex]=u;closeModal("userModal");renderAll();toast("User saved")}
+function toggleUser(i){users[i].status=users[i].status==="Active"?"Disabled":"Active";renderAll();toast("User status updated")}
+function renderUsers(){byId("userBody").innerHTML=users.map((u,i)=>'<tr><td>'+u.name+'</td><td>'+u.role+'</td><td>'+u.email+'</td><td>'+badge(u.status)+'</td><td><button onclick="editUser('+i+')">✏️ Edit</button> <button class="secondary" onclick="toggleUser('+i+')">'+(u.status==="Active"?"Disable":"Enable")+'</button></td></tr>').join("")}
+
+/* Dashboard */
+function renderDashboard(){
+ const active=emergencies.filter(e=>e.status!=="Resolved").length,high=emergencies.filter(e=>e.priority==="HIGH"&&e.status!=="Resolved").length;
+ byId("dashActive").textContent=active;byId("dashHigh").textContent=high;byId("dashDrone").textContent=drones.filter(d=>d.status==="Available").length;byId("dashTeam").textContent=teams.filter(t=>t.status==="Available").length;
+ byId("recentBody").innerHTML=emergencies.slice(0,5).map(e=>'<tr><td>'+e.id+'</td><td>'+e.type+'</td><td>'+e.location+'</td><td>'+badge(e.priority)+'</td><td>'+badge(e.status)+'</td><td><button onclick="editEmergency(\''+e.id+'\')">View/Edit</button></td></tr>').join("");
+ const mission=emergencies.find(e=>e.status==="Assigned"||e.status==="In Progress");
+ byId("missionBox").innerHTML=mission?'<p><b>Emergency:</b> '+mission.id+'</p><p><b>Drone:</b> '+(mission.drone||"Not assigned")+'</p><p><b>Location:</b> '+mission.location+'</p><p><b>Status:</b> '+badge(mission.status)+'</p><p>Progress: 78%</p><div class="progress"><div style="width:78%"></div></div><button onclick="completeMission(\''+mission.id+'\')">✅ Complete Mission</button>':'<p class="muted">No active mission.</p>';
+}
+function completeMission(id){const e=emergencies.find(x=>x.id===id);if(!e)return;e.status="Resolved";if(e.drone){const d=drones.find(x=>x.id===e.drone);if(d)d.status="Available"}if(e.team){const t=teams.find(x=>x.id===e.team);if(t)t.status="Available"}renderAll();toast("Mission completed")}
+
+/* Analytics */
+function renderAnalytics(){
+ const total=emergencies.length,res=emergencies.filter(e=>e.status==="Resolved").length;
+ byId("aTotal").textContent=total;byId("aResolved").textContent=res;byId("aActive").textContent=total-res;
+ const types={};emergencies.forEach(e=>types[e.type]=(types[e.type]||0)+1);
+ byId("typeAnalytics").innerHTML=Object.entries(types).map(([k,v])=>'<p><b>'+k+'</b> ('+v+')</p><div class="bar"><div style="width:'+(v/total*100)+'%"></div></div>').join("");
+ const priorities={HIGH:0,MEDIUM:0,LOW:0};emergencies.forEach(e=>priorities[e.priority]++);
+ byId("priorityAnalytics").innerHTML=Object.entries(priorities).map(([k,v])=>'<p><b>'+k+'</b> ('+v+')</p><div class="bar"><div style="width:'+(total?v/total*100:0)+'%"></div></div>').join("");
+}
+function downloadCSV(){
+ const rows=[["ID","Type","Location","Priority","Status","Drone","Team"]];
+ emergencies.forEach(e=>rows.push([e.id,e.type,e.location,e.priority,e.status,e.drone||"",e.team||""]));
+ const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n");
+ const a=document.createElement("a");a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);a.download="emergencies.csv";a.click();
+}
+
+/* AI */
+let aiImageData="";
+function previewImage(event){
+ const file=event.target.files[0];if(!file)return;
+ const reader=new FileReader();reader.onload=e=>{aiImageData=e.target.result;byId("imagePreview").innerHTML='<img src="'+aiImageData+'" alt="Emergency image">'};reader.readAsDataURL(file);
+}
+function analyzeImage(){
+ if(!aiImageData){toast("Please select an image");return}
+ const people=Math.floor(Math.random()*4)+1,confidence=90+Math.floor(Math.random()*9);
+ const hazards=["Flood-like scene","Fire/smoke-like scene","Accident scene","Possible structural damage"];
+ const hazard=hazards[Math.floor(Math.random()*hazards.length)];
+ byId("aiPeople").textContent=people;byId("aiConfidence").textContent=confidence+"%";
+ byId("imageResult").innerHTML='<b>🤖 AI Analysis Result</b><br>👤 Possible persons detected: <b>'+people+'</b><br>⚠️ Visual condition: <b>'+hazard+'</b><br>🔴 Suggested risk: <b>HIGH</b><br>🎯 Confidence: <b>'+confidence+'%</b><br><small>Prototype inference. Connect YOLO/OpenCV in the backend for real detection.</small>';
+ toast("AI image analysis completed");
+}
+function predictPriority(){
+ const affected=Number(byId("aiAffected").value)||0,severity=byId("aiSeverity").value,road=byId("aiRoad").value,type=byId("aiType").value;
+ let score=(affected>=20?4:affected>=10?3:affected>=5?2:1)+(severity==="Critical"?4:severity==="High"?3:severity==="Medium"?2:1)+(road==="Blocked"?2:0)+(["Flood","Fire","Landslide"].includes(type)?1:0);
+ const priority=score>=9?"CRITICAL":score>=7?"HIGH":score>=4?"MEDIUM":"LOW";
+ byId("aiRisk").textContent=priority;byId("priorityResult").innerHTML='<b>🎯 AI Priority: '+priority+'</b><br>Risk Score: <b>'+score+'/11</b><br>Recommended action: <b>'+ (priority==="CRITICAL"?"Immediate rescue dispatch":priority==="HIGH"?"Dispatch rescue team quickly":"Monitor and assign resources")+'</b>';
+}
+function recommendResources(){
+ const ds=drones.filter(d=>d.status==="Available"&&d.battery>=40).sort((a,b)=>b.battery-a.battery),ts=teams.filter(t=>t.status==="Available");
+ if(!ds.length||!ts.length){byId("recommendResult").innerHTML="<b>⚠️ No suitable resources available.</b>";return}
+ const d=ds[0],t=ts[0];
+ byId("recommendResult").innerHTML='<b>✨ AI Recommendation</b><br>🚁 Drone: <b>'+d.id+' - '+d.name+'</b> ('+d.battery+'% battery)<br>👨‍🚒 Team: <b>'+t.id+' - '+t.name+'</b> ('+t.members+' members)<br><br><button onclick="assignResources(\''+d.id+'\',\''+t.id+'\')">Assign Resources</button>';
+}
+function assignResources(droneId,teamId){
+ const e=emergencies.find(x=>x.status!=="Resolved");if(!e)return;
+ e.drone=droneId;e.team=teamId;e.status="Assigned";
+ const d=drones.find(x=>x.id===droneId),t=teams.find(x=>x.id===teamId);if(d)d.status="On Mission";if(t)t.status="On Mission";
+ renderAll();toast("AI resources assigned");
+}
+function askAI(){
+ const input=byId("chatInput"),q=input.value.trim();if(!q)return;const box=byId("chatBox");
+ box.innerHTML+='<div class="user-msg">You: '+q.replace(/</g,"&lt;")+'</div>';
+ const lower=q.toLowerCase();let answer;
+ if(lower.includes("priority")||lower.includes("highest")){const rank={HIGH:3,MEDIUM:2,LOW:1};const e=emergencies.filter(x=>x.status!=="Resolved").sort((a,b)=>rank[b.priority]-rank[a.priority])[0];answer=e?"Highest active priority is <b>"+e.id+"</b> ("+e.type+") at "+e.location+".":"No active emergencies."}
+ else if(lower.includes("drone")){const d=drones.find(x=>x.status==="Available");answer=d?"Available drone: <b>"+d.id+"</b> with "+d.battery+"% battery.":"No drone is currently available."}
+ else if(lower.includes("team")||lower.includes("rescue")){const t=teams.find(x=>x.status==="Available");answer=t?"Available rescue team: <b>"+t.id+" - "+t.name+"</b>.":"No rescue team is available."}
+ else if(lower.includes("resolved"))answer="Resolved emergencies: <b>"+emergencies.filter(x=>x.status==="Resolved").length+"</b>.";
+ else answer="I can help with emergency priority, drones, rescue teams and system statistics.";
+ setTimeout(()=>{box.innerHTML+='<div class="bot">🤖 <b>Rescue AI:</b> '+answer+'</div>';box.scrollTop=box.scrollHeight},180);input.value="";
+}
+
+/* Timeline, citizen and settings */
+function escalateIncident(){const e=emergencies.find(x=>x.status!=="Resolved");if(!e){byId("escalationResult").innerHTML="<b>No active incident.</b>";return}e.priority="HIGH";e.status="In Progress";byId("escalationResult").innerHTML="<b>🔴 "+e.id+" escalated.</b><br>Admin notified and additional support requested.";renderAll();toast("Incident escalated")}
+function submitCitizenEmergency(){
+ const loc=byId("cLocation").value.trim();if(!loc){toast("Enter emergency location");return}
+ const id="ER-"+Math.floor(1000+Math.random()*8999);
+ emergencies.unshift({id:id,type:byId("cType").value,location:loc,priority:"HIGH",status:"Pending",drone:"",team:"",desc:byId("cDesc").value.trim()});
+ byId("citizenResult").innerHTML="<b>✅ Emergency submitted</b><br>ID: <b>"+id+"</b><br>Status: <b>Pending</b>";
+ renderAll();toast("Emergency report submitted");
+}
+function saveSettings(){
+ const p=byId("settingsPass").value,c=byId("settingsConfirm").value;
+ if(p&&p!==c){toast("Passwords do not match");return}
+ byId("headerUser").textContent=byId("settingsUser").value||"Admin";toast("Settings saved");
+}
+
+/* Themes */
+function setTheme(name){
+ document.body.classList.remove("dark","blue","green");if(name)document.body.classList.add(name);localStorage.setItem("rescueTheme",name);toast("Theme changed");
+}
+function cycleTheme(){
+ const current=localStorage.getItem("rescueTheme")||"",index=themes.indexOf(current),next=themes[(index+1)%themes.length];setTheme(next);
+}
+function loadTheme(){const t=localStorage.getItem("rescueTheme")||"";document.body.classList.remove("dark","blue","green");if(t)document.body.classList.add(t)}
+
+/* Render */
+function renderAll(){renderEmergencies();renderDrones();renderTeams();renderUsers();renderDashboard();renderAnalytics();fillAssignments()}
+loadTheme();renderAll();
+</script>
+</body>
+</html>
